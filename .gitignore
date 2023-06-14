@@ -1,0 +1,6 @@
+# ignore __pycache__ directory everywhere
+**/__pycache__/
+multi_head_attention.py
+**/.langchain.db
+
+
