@@ -28,6 +28,7 @@ embeddings = OpenAIEmbeddings()
 
 # create vector store
 db = Chroma.from_documents(docs, embeddings)
+db.add_documents(texts)
 
 # create retriever
 retriever = db.as_retriever()
@@ -41,12 +42,13 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
 
 # model = ChatOpenAI(model_name='gpt-4') # switch to 'gpt-4'
-model = ChatOpenAI(model_name='gpt-3.5-turbo') # switch to 'gpt-4'
+model = ChatOpenAI(model_name='gpt-3.5-turbo', temperature=.25) # switch to 'gpt-4'
 qa = ConversationalRetrievalChain.from_llm(model,retriever=retriever)
 
 # ask questions
 questions = [
         "What is this repository about?",
+        "Describe the use of middleware in settings.py, what is important to know?",
         "Look for security issues in the code, settings.py or various configs. Provide details on them to me.",
         "How is it utilizing nginx?",
         "Explain the class based views for the django blog application.",
