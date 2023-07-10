@@ -1,0 +1,20 @@
+{
+  "Ninja Shake": {
+    "ingredients": "1 banana, 1 siggis yogurt 5.8 oz, 1 whey protein scoop, 1 table spoon chia seeds, 6oz almond milk, half cup mixed berries",
+    "total calories": 500,
+    "total protein": 20,
+    "protein calories": 80,
+    "carb calories": 220,
+    "vegetable calories": 100,
+    "fat calories": 100
+  },
+  "Breakfast Burrito": {
+    "ingredients": "Approximated based on additional_info",
+    "total calories": 500,
+    "total protein": 20,
+    "protein calories": 80,
+    "carb calories": 220,
+    "vegetable calories": 100,
+    "fat calories": 100
+  }
+}
