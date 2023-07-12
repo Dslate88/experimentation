@@ -1,6 +1,9 @@
 # %!jq
+import ast
+from langchain.llms import OpenAI
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
 import json
-import random
 import argparse
 import re
 
@@ -13,6 +16,29 @@ from langchain.prompts import (
 from langchain.chains import ConversationChain
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
+
+meal_schema = {
+    "{meal_name}": {
+        "ingredients": "{ingredients}",
+        "total_calories": 0,
+        "total_protein": 0,
+        "protein_calories": 0,
+        "carb_calories": 0,
+        "vegetable_calories": 0,
+        "fat_calories": 0,
+        "fiber": 0,
+        "sodium": 0,
+        "saturated_fat": 0,
+        "sugars": 0,
+        "vitamin_d": 0,
+        "calcium": 0,
+        "iron": 0,
+        "potassium": 0,
+        "cholesterol": 0,
+        "omega_3": 0,
+        "omega_6": 0,
+    }
+}
 
 def load_meals(filename):
     with open(filename, 'r') as f:
@@ -37,19 +63,23 @@ def get_nutritional_values(meals, meal_name):
         return meals[meal_name]
     return None
 
-def approximate_nutritional_values(meal_name, additional_info):
-    # Placeholder method for approximating nutritional values
-    # Based on additional_info, write logic to approximate values
-    nutritional_values = {
-        'ingredients': 'Approximated based on additional_info',
-        'total calories': 500,
-        'total protein': 20,
-        'protein calories': 80,
-        'carb calories': 220,
-        'vegetable calories': 100,
-        'fat calories': 100
-    }
-    return nutritional_values
+def approximate_nutritional_values(meal_name, additional_info, meal_schema):
+    llm = OpenAI(temperature=0.4)
+    prompt = PromptTemplate.from_template(
+        "What are the nutritional values for {meal_name} given the following information: {additional_info}? "
+        "You must return a JSON object with the following schema: {schema}. "
+        "If the additional_info does not provide enough information then infer as much as you can to make approximations. "
+    )
+
+    chain = LLMChain(llm=llm, prompt=prompt)
+    resp = chain.run(
+        meal_name=meal_name, additional_info=additional_info, schema=meal_schema
+    )
+
+    # Use ast.literal_eval to convert the string into a dictionary
+    resp_dict = ast.literal_eval(resp)
+
+    return resp_dict
 
 def start_chat(meals):
     prompt = ChatPromptTemplate.from_messages([
@@ -84,14 +114,11 @@ def start_chat(meals):
             # Ask for more information
             print('Please provide as much information about this meal as you can.')
             additional_info = input('> ')
-            nutritional_values = approximate_nutritional_values(meal_name, additional_info)
+            nutritional_values = approximate_nutritional_values(meal_name, additional_info, meal_schema)
 
-            update_meals('meals.json', meal_name, nutritional_values)
+        # Here nutritional_values is a dictionary
+        update_meals('meals.json', meal_name, nutritional_values)
 
-        print(f"\nMeal: {meal_name}")
-        for key, value in nutritional_values.items():
-            print(f"{key.capitalize()}: {value}")
-        print()
 
 def main():
     parser = argparse.ArgumentParser(description="A tool for logging meals and calculating nutritional values.")
